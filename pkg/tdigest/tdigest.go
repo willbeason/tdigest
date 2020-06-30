@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+// binarySearchThreshold is when iterating sequentially through a list of
+// centroid pointers becomes faster than doing a binary search.
+//
+// Optimized for my machine. A different number may be optimal for other
+// architectures/setups.
+const binarySearchThreshold = 32
+
+// centroid represents some set of knowledge about a distribution.
 type centroid struct {
 	mean  float64
 	count float64
@@ -84,7 +92,7 @@ func (d *TDigest) nearest(val float64) int {
 	// While the difference between left and right is greater than 32, use a
 	// binary search. I've determined this experimentally on my machine, so
 	// results may vary.
-	for ; diff > 32; diff = right - left {
+	for ; diff > binarySearchThreshold; diff = right - left {
 		// Remember that middle is rounded down.
 		// Middle for each iteration is guaranteed to be unique.
 		middle := left + diff/2
